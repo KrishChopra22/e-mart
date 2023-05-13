@@ -153,7 +153,7 @@ class SignUpScreen extends StatelessWidget {
         email: emailController.text,
         password: passwordController.text,
       );
-      Person person = Person();
+      UserPerson person = UserPerson();
 
       Map<String, dynamic> personJson = {};
       personJson['name'] = nameController.text;

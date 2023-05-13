@@ -11,8 +11,12 @@ class AuthUtils {
             type: MaterialType.transparency,
             child: WillPopScope(
               onWillPop: () async => false,
-              child: const Center(
-                child: CircularProgressIndicator(),
+              child: const SizedBox(
+                height: 60,
+                width: 60,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
           );

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 final FirebaseAuth auth = FirebaseAuth.instance;
 final FirebaseDatabase database = FirebaseDatabase.instance;
 
-class Person extends ChangeNotifier {
+class UserPerson extends ChangeNotifier {
   late String name;
   late String uid;
   late String email;

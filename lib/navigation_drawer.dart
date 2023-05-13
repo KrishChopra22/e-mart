@@ -1,7 +1,9 @@
 import 'package:e_mart/cart_page.dart';
+import 'package:e_mart/dataclass/person.dart';
 import 'package:e_mart/order_history_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'auth_screens/login_screen.dart';
 
 class NavigationDrawerWidget extends StatelessWidget {
@@ -9,15 +11,28 @@ class NavigationDrawerWidget extends StatelessWidget {
   final padding = const EdgeInsets.symmetric(horizontal: 20);
   @override
   Widget build(BuildContext context) {
+    UserPerson userPerson = Provider.of<UserPerson>(context, listen: false);
+    final username = userPerson.name;
     return Drawer(
-      width: 250,
+      width: 240,
       child: Material(
         child: ListView(
           padding: padding,
           children: <Widget>[
             const SizedBox(
-              height: 20,
+              height: 40,
             ),
+            Text(
+              "Hey $username!",
+              style: const TextStyle(
+                  color: Colors.indigo,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            const Divider(color: Colors.indigo),
             buildMenuItem(
               drawerText: 'My Cart',
               drawerIcon: Icons.shopping_cart_outlined,
@@ -34,7 +49,7 @@ class NavigationDrawerWidget extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Divider(color: Colors.black),
+            const Divider(color: Colors.indigo),
             const SizedBox(
               height: 20,
             ),

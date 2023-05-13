@@ -66,13 +66,13 @@ class _DashBoardState extends State<DashBoard> {
   ];
 
   final CartService _cartService = CartService();
-  late Person person;
+  late UserPerson person;
   List<Map<String, dynamic>> cartItems = [];
 
   @override
   void initState() {
     super.initState();
-    person = Provider.of<Person>(context, listen: false);
+    person = Provider.of<UserPerson>(context, listen: false);
     cartItems = person.cartItems;
   }
 
@@ -93,23 +93,46 @@ class _DashBoardState extends State<DashBoard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('e-Mart'),
+        actions: [
+          IconButton(
+            padding: EdgeInsets.all(4),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartPage()),
+              );
+            },
+            icon: Icon(Icons.shopping_cart),
+            iconSize: 30,
+          ),
+        ],
       ),
       body: ListView.builder(
+        physics: const BouncingScrollPhysics(),
         itemCount: productList.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(4.0),
             child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: ListTile(
+                contentPadding: EdgeInsets.all(8),
                 leading: Image.asset(
                   productList[index]['image'],
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                 ),
-                title: Text(productList[index]['name']),
-                subtitle: Text('\$${productList[index]['price']}'),
-                trailing: IconButton(
-                  icon: Icon(Icons.shopping_cart),
+                title: Text(productList[index]['name'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    )),
+                subtitle: Text('\$${productList[index]['price']}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                trailing: ElevatedButton(
                   onPressed: () {
                     setState(() {
                       // getCartItems();
@@ -118,20 +141,20 @@ class _DashBoardState extends State<DashBoard> {
                       storeCartItems();
                     });
                   },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigoAccent,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      shape: const StadiumBorder()),
+                  child: const Text(
+                    "Add to Cart",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
                 ),
               ),
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CartPage()),
-          );
-        },
-        child: Icon(Icons.shopping_cart),
       ),
       drawer: const NavigationDrawerWidget(),
     );

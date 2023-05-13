@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'dataclass/cart_service.dart';
 import 'dataclass/person.dart';
 
 class OrderHistoryPage extends StatefulWidget {
@@ -12,23 +10,15 @@ class OrderHistoryPage extends StatefulWidget {
 }
 
 class _OrderHistoryPageState extends State<OrderHistoryPage> {
-  late Person person;
-  final CartService _cartService = CartService();
+  late UserPerson person;
   List<Map<String, dynamic>> orderHistory = [];
 
   @override
   void initState() {
     super.initState();
-    person = Provider.of<Person>(context, listen: false);
+    person = Provider.of<UserPerson>(context, listen: false);
     orderHistory = person.orderHistory;
   }
-
-  // Future<void> getOrderHistory() async {
-  //   final orderHistories = await _cartService.getOrderHistory();
-  //   setState(() {
-  //     orderHistory = orderHistories;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -42,32 +32,69 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           final order = orderHistory[index];
           final cartItemsList = order['orders'] as List;
 
-          print("ORDER HAI -    $order");
           return Padding(
             padding: EdgeInsets.all(8.0),
             child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: ExpansionTile(
                 expandedAlignment: Alignment.centerLeft,
                 expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                title: Text(order['date']),
-                subtitle: Text(cartItemsList.length.toString()),
+                title: RichText(
+                  text: TextSpan(
+                    text: "Order placed on ",
+                    style: const TextStyle(
+                        color: Colors.indigo,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text:
+                            "- ${order['date'].toString().substring(0, 10)}\n",
+                        style: const TextStyle(
+                            color: Colors.indigoAccent,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal),
+                      ),
+                      TextSpan(
+                        text:
+                            "at${order['date'].toString().substring(10, 19)}\n",
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                tilePadding: EdgeInsets.fromLTRB(10, 4, 10, 4),
+                subtitle: Text(
+                    "Total Items : ${cartItemsList.length.toString()}",
+                    style: const TextStyle(color: Colors.indigo, fontSize: 14)),
                 children: [
                   ListView.builder(
+                    physics: ScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: cartItemsList.length,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(4.0),
                         child: Card(
+                          elevation: 3,
                           child: ListTile(
                             leading: Image.asset(
                               cartItemsList[index]['image'],
-                              width: 50,
-                              height: 50,
+                              width: 60,
+                              height: 60,
                             ),
                             title: Text(cartItemsList[index]['name']),
                             subtitle: Text(
-                                '\$${cartItemsList[index]['price'].toString()}'),
+                                '\$${cartItemsList[index]['price'].toString()}',
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                )),
                           ),
                         ),
                       );

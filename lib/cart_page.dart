@@ -1,8 +1,8 @@
 import 'package:e_mart/order_history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'dataclass/cart_service.dart';
+import 'dataclass/notification_service.dart';
 import 'dataclass/person.dart';
 
 class CartPage extends StatefulWidget {
@@ -13,18 +13,23 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  late Person person;
+  late UserPerson userPerson;
   final CartService _cartService = CartService();
   double total = 0;
   List<Map<String, dynamic>> orderHistory = [];
   List<Map<String, dynamic>> cartItemsList = [];
 
+  late final NotificationService notificationService;
+
   @override
   void initState() {
     super.initState();
-    person = Provider.of<Person>(context, listen: false);
-    cartItemsList = person.cartItems;
-    orderHistory = person.orderHistory;
+    userPerson = Provider.of<UserPerson>(context, listen: false);
+    cartItemsList = userPerson.cartItems;
+    orderHistory = userPerson.orderHistory;
+
+    notificationService = NotificationService();
+    notificationService.initializePlatformNotifications();
     for (var item in cartItemsList) {
       total += item['price'];
     }
@@ -49,8 +54,10 @@ class _CartPageState extends State<CartPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        icon: Icon(Icons.shopping_bag_outlined),
+        iconColor: Colors.indigo,
         title: Text('Confirmation'),
-        content: Text('Your order has been placed.'),
+        content: Text('Your order has been placed'),
         actions: <Widget>[
           TextButton(
             onPressed: () async {
@@ -59,10 +66,18 @@ class _CartPageState extends State<CartPage> {
                 'orders': List<Map<String, dynamic>>.from(cartItemsList),
               };
               orderHistory.add(order);
-              person.updateOrderHistory(orderHistory);
+              userPerson.updateOrderHistory(orderHistory);
               await storeOrderHistory();
-              print("naya print - ${person.orderHistory}");
-              person.clearCart();
+              print("naya print - ${userPerson.orderHistory}");
+
+              await notificationService.showLocalNotification(
+                  id: 0,
+                  title: "Order Placed ✅",
+                  body:
+                      "Your order of ${cartItemsList.length} items has been recieved!",
+                  payload: "Order Placed Successfully!");
+
+              userPerson.clearCart();
               cartItemsList.clear();
               await storeCartItems();
               total = 0;
@@ -92,20 +107,30 @@ class _CartPageState extends State<CartPage> {
           return Padding(
             padding: EdgeInsets.all(8.0),
             child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: ListTile(
                 leading: Image.asset(
                   cartItemsList[index]['image'],
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                 ),
-                title: Text(cartItemsList[index]['name']),
-                subtitle: Text('\$${cartItemsList[index]['price'].toString()}'),
+                title: Text(cartItemsList[index]['name'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    )),
+                subtitle: Text('\$${cartItemsList[index]['price'].toString()}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.redAccent)),
                 trailing: IconButton(
                   icon: Icon(Icons.delete),
+                  color: Colors.red,
                   onPressed: () async {
                     cartItemsList.removeAt(index);
 
-                    person.updateCart(cartItemsList);
+                    userPerson.updateCart(cartItemsList);
                     await storeCartItems();
                     total = 0;
                     for (var item in cartItemsList) {
@@ -119,10 +144,6 @@ class _CartPageState extends State<CartPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _placeOrder,
-        child: Icon(Icons.check),
-      ),
       bottomNavigationBar: BottomAppBar(
         child: Container(
           height: 50,
@@ -131,13 +152,21 @@ class _CartPageState extends State<CartPage> {
             children: [
               Padding(
                 padding: EdgeInsets.only(left: 20.0),
-                child: Text('Total: \$${total.toString()}'),
+                child: Text(
+                  'Total : \$${total.toString()}',
+                  style: TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
               ),
               Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: ElevatedButton(
                   onPressed: _placeOrder,
-                  child: Text('Checkout'),
+                  child: Text('Checkout',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 ),
               ),
             ],

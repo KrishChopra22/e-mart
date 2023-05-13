@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'auth_screens/login_screen.dart';
@@ -11,11 +12,20 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  final initializationSettings = InitializationSettings(
+    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    iOS: DarwinInitializationSettings(),
+  );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await checkUser();
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => Person()),
+      ChangeNotifierProvider(create: (context) => UserPerson()),
     ],
     child: MyApp(),
   ));
@@ -72,8 +82,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<Person>? retrievePersonInfo() async {
-    Person person = Provider.of<Person>(context, listen: false);
+  Future<UserPerson>? retrievePersonInfo() async {
+    UserPerson person = Provider.of<UserPerson>(context, listen: false);
     await person.retrieveBasicInfo(FirebaseAuth.instance.currentUser!.uid);
     print(person);
     return person;
@@ -81,12 +91,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Person>(
+    return FutureBuilder<UserPerson>(
         future: retrievePersonInfo(),
-        builder: (BuildContext context, AsyncSnapshot<Person> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<UserPerson> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Splash Screen
             return const SizedBox(
+                width: 60,
+                height: 60,
                 child: DecoratedBox(
                     decoration: BoxDecoration(color: Colors.white),
                     child: CircularProgressIndicator(
