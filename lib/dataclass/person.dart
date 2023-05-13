@@ -17,10 +17,16 @@ class Person extends ChangeNotifier {
     uid = json['uid'];
     email = json['email'];
     if (json['cartItems'] != null) {
-      cartItems = List<Map<String, dynamic>>.from(json['cartItems']);
+      cartItems = List<Map<String, dynamic>>.generate(
+          json['cartItems'].length,
+          (index) => Map<String, dynamic>.from(
+              json['cartItems'][index] as Map<dynamic, dynamic>));
     }
     if (json['orderHistory'] != null) {
-      orderHistory = List<Map<String, dynamic>>.from(json['orderHistory']);
+      orderHistory = List<Map<String, dynamic>>.generate(
+          json['orderHistory'].length,
+          (index) => Map<String, dynamic>.from(
+              json['orderHistory'][index] as Map<dynamic, dynamic>));
     }
   }
 
@@ -36,6 +42,7 @@ class Person extends ChangeNotifier {
     final userSnapshot = await database.ref().child('Users/$uid').get();
     Map<String, dynamic> userMap =
         Map<String, dynamic>.from(userSnapshot.value as Map<dynamic, dynamic>);
+
     fromJson(userMap);
     notifyListeners();
   }
@@ -66,13 +73,11 @@ class Person extends ChangeNotifier {
   // }
   void addToCart(Map<String, dynamic> item) {
     cartItems.add(item);
-    print("YE DEKHO \n\n");
-    print(cartItems);
     notifyListeners();
   }
 
-  void removeFromCart(int index) {
-    cartItems.removeAt(index);
+  void updateCart(List<Map<String, dynamic>> cartItemsList) {
+    cartItems = cartItemsList;
     notifyListeners();
   }
 
@@ -81,12 +86,8 @@ class Person extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addToOrderHistory(List<Map<String, dynamic>> orders) {
-    final order = {
-      'date': DateTime.now().toString(),
-      'orders': orders,
-    };
-    orderHistory.add(order);
+  updateOrderHistory(List<Map<String, dynamic>> orders) {
+    orderHistory = orders;
     print(orderHistory);
     notifyListeners();
     // storeOrderHistory();

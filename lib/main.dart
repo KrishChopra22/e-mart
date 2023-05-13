@@ -75,6 +75,7 @@ class _HomePageState extends State<HomePage> {
   Future<Person>? retrievePersonInfo() async {
     Person person = Provider.of<Person>(context, listen: false);
     await person.retrieveBasicInfo(FirebaseAuth.instance.currentUser!.uid);
+    print(person);
     return person;
   }
 

@@ -6,15 +6,14 @@ import 'dataclass/cart_service.dart';
 import 'dataclass/person.dart';
 
 class CartPage extends StatefulWidget {
-  final List<Map<String, dynamic>> cartItems;
-
-  const CartPage(this.cartItems, {super.key});
+  const CartPage({super.key});
 
   @override
   State<CartPage> createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
+  late Person person;
   final CartService _cartService = CartService();
   double total = 0;
   List<Map<String, dynamic>> orderHistory = [];
@@ -23,18 +22,20 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
-    getCartItems();
-    for (var item in widget.cartItems) {
+    person = Provider.of<Person>(context, listen: false);
+    cartItemsList = person.cartItems;
+    orderHistory = person.orderHistory;
+    for (var item in cartItemsList) {
       total += item['price'];
     }
   }
 
-  Future<void> getCartItems() async {
-    final items = await _cartService.getCartItems();
-    setState(() {
-      cartItemsList = items;
-    });
-  }
+  // Future<void> getCartItems() async {
+  //   final items = await _cartService.getCartItems();
+  //   setState(() {
+  //     cartItemsList = items;
+  //   });
+  // }
 
   Future<void> storeCartItems() async {
     await _cartService.storeCartItems(cartItemsList);
@@ -52,25 +53,24 @@ class _CartPageState extends State<CartPage> {
         content: Text('Your order has been placed.'),
         actions: <Widget>[
           TextButton(
-            onPressed: () {
-              setState(() {
-                // orderHistory.addAll(widget.cartItems);
-                Person person = Provider.of<Person>(context, listen: false);
-                orderHistory = person.orderHistory;
-                person.addToOrderHistory(widget.cartItems);
-                storeOrderHistory();
-                person.clearCart();
-                cartItemsList.clear();
-                storeCartItems();
-                total = 0;
-              });
+            onPressed: () async {
+              final order = {
+                'date': DateTime.now().toString(),
+                'orders': List<Map<String, dynamic>>.from(cartItemsList),
+              };
+              orderHistory.add(order);
+              person.updateOrderHistory(orderHistory);
+              await storeOrderHistory();
+              print("naya print - ${person.orderHistory}");
+              person.clearCart();
+              cartItemsList.clear();
+              await storeCartItems();
+              total = 0;
               Navigator.of(context).pop();
               Navigator.of(context).pop();
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        OrderHistoryPage(orderHistory: orderHistory)),
+                MaterialPageRoute(builder: (context) => OrderHistoryPage()),
               );
             },
             child: Text('OK'),
@@ -102,18 +102,16 @@ class _CartPageState extends State<CartPage> {
                 subtitle: Text('\$${cartItemsList[index]['price'].toString()}'),
                 trailing: IconButton(
                   icon: Icon(Icons.delete),
-                  onPressed: () {
-                    setState(() {
-                      Person person =
-                          Provider.of<Person>(context, listen: false);
-                      person.removeFromCart(index);
-                      cartItemsList.removeAt(index);
-                      storeCartItems();
-                      total = 0;
-                      for (var item in cartItemsList) {
-                        total += item['price'];
-                      }
-                    });
+                  onPressed: () async {
+                    cartItemsList.removeAt(index);
+
+                    person.updateCart(cartItemsList);
+                    await storeCartItems();
+                    total = 0;
+                    for (var item in cartItemsList) {
+                      total += item['price'];
+                    }
+                    setState(() {});
                   },
                 ),
               ),

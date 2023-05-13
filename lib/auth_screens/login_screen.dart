@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../main.dart';
 import 'auth_utils.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -126,7 +127,7 @@ class LoginScreen extends StatelessWidget {
       await auth.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
       state.pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const DashBoard()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
           (Route route) => false);
     } on FirebaseAuthException catch (e) {
       print(e.code);

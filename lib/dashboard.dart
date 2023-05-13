@@ -66,23 +66,23 @@ class _DashBoardState extends State<DashBoard> {
   ];
 
   final CartService _cartService = CartService();
+  late Person person;
   List<Map<String, dynamic>> cartItems = [];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // Person person = Provider.of<Person>(context, listen: false);
-  //   // cartItems = person.cartItems;
-  //   getCartItems();
-  // }
-
-  Future<void> getCartItems() async {
-    final items = await _cartService.getCartItems();
-    setState(() {
-      cartItems.clear();
-      cartItems = items;
-    });
+  @override
+  void initState() {
+    super.initState();
+    person = Provider.of<Person>(context, listen: false);
+    cartItems = person.cartItems;
   }
+
+  // Future<void> getCartItems() async {
+  //   final items = await _cartService.getCartItems();
+  //   setState(() {
+  //     cartItems.clear();
+  //     cartItems = items;
+  //   });
+  // }
 
   Future<void> storeCartItems() async {
     await _cartService.storeCartItems(cartItems);
@@ -113,12 +113,9 @@ class _DashBoardState extends State<DashBoard> {
                   onPressed: () {
                     setState(() {
                       // getCartItems();
-                      Person person =
-                          Provider.of<Person>(context, listen: false);
-                      cartItems = person.cartItems;
-                      person.addToCart(productList[index]);
+                      cartItems.add(productList[index]);
+                      person.updateCart(cartItems);
                       storeCartItems();
-                      // print(cartItems);
                     });
                   },
                 ),
@@ -131,12 +128,12 @@ class _DashBoardState extends State<DashBoard> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CartPage(cartItems)),
+            MaterialPageRoute(builder: (context) => CartPage()),
           );
         },
         child: Icon(Icons.shopping_cart),
       ),
-      // drawer: const NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
     );
   }
 }
