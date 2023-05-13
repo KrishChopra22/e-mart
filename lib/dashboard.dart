@@ -76,14 +76,6 @@ class _DashBoardState extends State<DashBoard> {
     cartItems = person.cartItems;
   }
 
-  // Future<void> getCartItems() async {
-  //   final items = await _cartService.getCartItems();
-  //   setState(() {
-  //     cartItems.clear();
-  //     cartItems = items;
-  //   });
-  // }
-
   Future<void> storeCartItems() async {
     await _cartService.storeCartItems(cartItems);
   }

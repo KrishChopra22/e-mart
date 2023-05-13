@@ -6,13 +6,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'auth_screens/login_screen.dart';
 
-class NavigationDrawerWidget extends StatelessWidget {
+class NavigationDrawerWidget extends StatefulWidget {
   const NavigationDrawerWidget({Key? key}) : super(key: key);
+
+  @override
+  State<NavigationDrawerWidget> createState() => _NavigationDrawerWidgetState();
+}
+
+class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
+  late UserPerson person;
+  String username = "";
+  @override
+  void initState() {
+    super.initState();
+    person = Provider.of<UserPerson>(context, listen: false);
+    username = person.name;
+  }
+
   final padding = const EdgeInsets.symmetric(horizontal: 20);
+
   @override
   Widget build(BuildContext context) {
-    UserPerson userPerson = Provider.of<UserPerson>(context, listen: false);
-    final username = userPerson.name;
     return Drawer(
       width: 240,
       child: Material(

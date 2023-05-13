@@ -1,4 +1,5 @@
 import 'package:e_mart/dashboard.dart';
+import 'package:e_mart/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -165,7 +166,7 @@ class SignUpScreen extends StatelessWidget {
       await database.ref('Users/${person.uid}').set(person.toJson());
       // state.pop();
       state.pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const DashBoard()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
           (Route route) => false);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
